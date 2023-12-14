@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import Content from "@/components/content";
 
 export default function Layout({ children, metaTitle, metaDescription }) {
   return (
@@ -15,7 +16,7 @@ export default function Layout({ children, metaTitle, metaDescription }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header />
-      <p>Content</p>
+      <Content />
       <Footer />
     </div>
   );
