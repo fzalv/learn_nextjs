@@ -6,7 +6,9 @@ import Content from "@/components/content";
 export default function profile() {
   return (
     <>
-      <Layout>
+      <Layout
+        metaTitle="Profile"
+        metaDesc="Semua informasi ini adalah seputar profile user">
         <p>Profile</p>
       </Layout>
       {/* <Header />

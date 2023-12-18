@@ -3,7 +3,7 @@ import Layout from "@/layout";
 export default function Main({ children }) {
   return (
     <>
-      <Layout>
+      <Layout metaTitle="Home">
         <p>Home</p>
       </Layout>
     </>
