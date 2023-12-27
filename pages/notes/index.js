@@ -23,6 +23,23 @@ export default function Notes() {
   const [notes, setNotes] = useState();
   const router = useRouter();
 
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`https://dummyjson.com/products/${id}`, {
+        method: "delete",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(notes),
+      });
+      const result = await response.json();
+
+      if (result?.success) {
+        router.reload();
+      }
+    } catch (error) {}
+  };
+
   useEffect(() => {
     async function fetchingData() {
       const res = await fetch("https://dummyjson.com/products");
@@ -32,7 +49,7 @@ export default function Notes() {
     fetchingData();
   }, []);
 
-  console.log("notes => ", notes);
+  // console.log("notes => ", notes);
   return (
     <>
       <LayoutComponent metaTitle="Notes">
@@ -60,11 +77,17 @@ export default function Notes() {
                       <Text>{item.description}</Text>
                     </CardBody>
                     <CardFooter>
-                      <Button variant="solid" colorScheme="blue">
-                        Buy now
+                      <Button
+                        onClick={() => router.push(`/notes/edit/${item?.id}`)}
+                        variant="solid"
+                        colorScheme="blue">
+                        Edit
                       </Button>
-                      <Button variant="ghost" colorScheme="blue">
-                        Add to cart
+                      <Button
+                        onClick={() => handleDelete(item?.id)}
+                        variant="solid"
+                        colorScheme="red">
+                        Delete
                       </Button>
                     </CardFooter>
                   </Card>
