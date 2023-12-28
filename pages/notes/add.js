@@ -12,28 +12,40 @@ import {
   Textarea,
   Text,
 } from "@chakra-ui/react";
+import { useMutation } from "@/hooks/useMutation";
+
 const LayoutComponent = dynamic(() => import("@/layout"));
 
 export default function AddNotes() {
   // console.log("notes data => ", notes);
   const [notes, setNotes] = useState({ title: "", description: "" });
   const router = useRouter();
+  const { mutate } = useMutation();
 
   const handlesubmit = async () => {
-    try {
-      const response = await fetch("https://dummyjson.com/products/add", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(notes),
-      });
-      const result = await response.json();
+    // try {
+    //   const response = await fetch("https://dummyjson.com/products/add", {
+    //     method: "post",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(notes),
+    //   });
+    //   const result = await response.json();
+    //   if (result?.success) {
+    //     router.push("/notes");
+    //   }
+    // } catch (error) {}
 
-      if (result?.success) {
-        router.push("/notes");
-      }
-    } catch (error) {}
+    const response = await mutate({
+      url: "https://dummyjson.com/products/add",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      payload: notes,
+    });
+
+    console.log("response => ", response);
   };
 
   return (

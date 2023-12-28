@@ -13,15 +13,33 @@ import {
   Text,
   Button,
   Box,
+  Spinner,
+  Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useQueries } from "@/hooks/useQueries";
 const LayoutComponent = dynamic(() => import("@/layout"));
 
 export default function Notes() {
   // console.log("notes data => ", notes);
   const [notes, setNotes] = useState();
   const router = useRouter();
+
+  const { data, isLoading } = useQueries({
+    prefixUrl: "https://dummyjson.com/products/",
+  });
+
+  // console.log("data => ", data);
+
+  useEffect(() => {
+    async function fetchingData() {
+      const res = await fetch("https://dummyjson.com/products");
+      const listNotes = await res.json();
+      setNotes(listNotes);
+    }
+    fetchingData();
+  }, []);
 
   const handleDelete = async (id) => {
     try {
@@ -40,15 +58,6 @@ export default function Notes() {
     } catch (error) {}
   };
 
-  useEffect(() => {
-    async function fetchingData() {
-      const res = await fetch("https://dummyjson.com/products");
-      const listNotes = await res.json();
-      setNotes(listNotes);
-    }
-    fetchingData();
-  }, []);
-
   // console.log("notes => ", notes);
   return (
     <>
@@ -65,36 +74,48 @@ export default function Notes() {
               Add Notes
             </Button>
           </Flex>
-          <Flex>
-            <Grid templateColumns="repeat(3, 1fr)" gap={5}>
-              {notes?.products?.map((item) => (
-                <GridItem>
-                  <Card>
-                    <CardHeader>
-                      <Heading>{item.title}</Heading>
-                    </CardHeader>
-                    <CardBody>
-                      <Text>{item.description}</Text>
-                    </CardBody>
-                    <CardFooter>
-                      <Button
-                        onClick={() => router.push(`/notes/edit/${item?.id}`)}
-                        variant="solid"
-                        colorScheme="blue">
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(item?.id)}
-                        variant="solid"
-                        colorScheme="red">
-                        Delete
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </GridItem>
-              ))}
-            </Grid>
-          </Flex>
+          {isLoading ? (
+            <Flex alignItems="center" justifyContent="center">
+              <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="blue.500"
+                size="xl"
+              />
+            </Flex>
+          ) : (
+            <Flex>
+              <Grid templateColumns="repeat(3, 1fr)" gap={5}>
+                {data?.products?.map((item) => (
+                  <GridItem>
+                    <Card>
+                      <CardHeader>
+                        <Heading>{item.title}</Heading>
+                      </CardHeader>
+                      <CardBody>
+                        <Text>{item.description}</Text>
+                      </CardBody>
+                      <CardFooter>
+                        <Button
+                          onClick={() => router.push(`/notes/edit/${item?.id}`)}
+                          variant="solid"
+                          colorScheme="blue">
+                          Edit
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(item?.id)}
+                          variant="solid"
+                          colorScheme="red">
+                          Delete
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </GridItem>
+                ))}
+              </Grid>
+            </Flex>
+          )}
         </Box>
       </LayoutComponent>
     </>
