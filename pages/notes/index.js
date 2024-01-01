@@ -16,7 +16,15 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import fetcher from "@/utils/fetcher";
+import useSWR from "swr";
+
 const LayoutComponent = dynamic(() => import("@/layout"));
+const { data, error, isLoading } = useSWR(
+  "https://dummyjson.com/products/",
+  fetcher,
+  { revalidateOnFocus: true }
+);
 
 export default function Notes() {
   // console.log("notes data => ", notes);
