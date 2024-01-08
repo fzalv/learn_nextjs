@@ -13,44 +13,56 @@ import {
   Text,
   Button,
   Box,
-  Spinner,
-  Stack,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  AlertDialogCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
-
-import fetcher from "@/utils/fetcher";
-import useSWR from "swr";
-
-
-import { useQueries } from "@/hooks/useQueries";
+import React from "react";
+import { getData } from "../api/hello";
 
 const LayoutComponent = dynamic(() => import("@/layout"));
-const { data, error, isLoading } = useSWR(
-  "https://dummyjson.com/products/",
-  fetcher,
-  { revalidateOnFocus: true }
-);
 
-export default function Notes() {
-  // console.log("notes data => ", notes);
+export default function Notes({ repo }) {
+  console.log("data -> ", repo);
   const [notes, setNotes] = useState();
   const router = useRouter();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef();
 
-  const { data, isLoading } = useQueries({
-    prefixUrl: "https://dummyjson.com/products/",
-  });
+  // const { data, isLoading } = useQueries({
+  //   prefixUrl: "https://dummyjson.com/products/",
+  // });
 
-  // console.log("data => ", data);
+  // const { data, isLoading } = useSWR(
+  //   "https://dummyjson.com/products/",
+  //   fetcher,
+  //   {
+  //     revalidateOnFocus: true,
+  //   }
+  // );
 
-  useEffect(() => {
-    async function fetchingData() {
-      const res = await fetch("https://dummyjson.com/products");
-      const listNotes = await res.json();
-      setNotes(listNotes);
-    }
-    fetchingData();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchingData() {
+  //     const res = await fetch("https://dummyjson.com/products");
+  //     const listNotes = await res.json();
+  //     setNotes(listNotes);
+  //   }
+  //   fetchingData();
+  // }, []);
+
+  // useEffect(() => {
+  //   fetch("/api/hello")
+  //     .then((res) => res.json())
+  //     .then((res) => console.log("response => ", res))
+  //     .catch((err) => console.log("err => ", err));
+  // }, []);
 
   const handleDelete = async (id) => {
     try {
@@ -73,67 +85,90 @@ export default function Notes() {
   return (
     <>
       <LayoutComponent metaTitle="Notes">
-        {/* {notes.products.map((item) => (
-          <div>
-            <Link href={`/notes/${item.id}`}>{item.title}</Link>
-          </div>
-        ))} */}
-
         <Box padding="5">
           <Flex justifyContent="end">
             <Button colorScheme="blue" onClick={() => router.push("notes/add")}>
               Add Notes
             </Button>
           </Flex>
-          {isLoading ? (
-            <Flex alignItems="center" justifyContent="center">
-              <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="blue.500"
-                size="xl"
-              />
-            </Flex>
-          ) : (
-            <Flex>
-              <Grid templateColumns="repeat(3, 1fr)" gap={5}>
-                {data?.products?.map((item) => (
-                  <GridItem>
-                    <Card>
-                      <CardHeader>
-                        <Heading>{item.title}</Heading>
-                      </CardHeader>
-                      <CardBody>
-                        <Text>{item.description}</Text>
-                      </CardBody>
-                      <CardFooter>
-                        <Button
-                          onClick={() => router.push(`/notes/edit/${item?.id}`)}
-                          variant="solid"
-                          colorScheme="blue">
-                          Edit
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(item?.id)}
-                          variant="solid"
-                          colorScheme="red">
-                          Delete
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </GridItem>
-                ))}
-              </Grid>
-            </Flex>
-          )}
+          <Flex>
+            <Grid templateColumns="repeat(3, 1fr)" gap={5}>
+              {repo.products.map((item) => (
+                <GridItem>
+                  <Card>
+                    <CardHeader>
+                      <Heading>{item.title}</Heading>
+                    </CardHeader>
+                    <CardBody>
+                      <Text>{item.description}</Text>
+                    </CardBody>
+                    <CardFooter>
+                      <Button
+                        onClick={() => router.push(`/notes/edit/${item?.id}`)}
+                        variant="solid"
+                        colorScheme="blue">
+                        Edit
+                      </Button>
+                      <Button
+                        // onClick={() => handleDelete(item?.id)}
+                        onClick={onOpen}
+                        variant="solid"
+                        colorScheme="red">
+                        Delete
+                      </Button>
+                      <AlertDialog
+                        isOpen={isOpen}
+                        leastDestructiveRef={cancelRef}
+                        onClose={onClose}>
+                        <AlertDialogOverlay>
+                          <AlertDialogContent>
+                            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                              Delete Customer
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                              Are you sure? You can't undo this action
+                              afterwards.
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                              <Button ref={cancelRef} onClick={onClose}>
+                                Cancel
+                              </Button>
+                              <Button
+                                colorScheme="red"
+                                onClick={() => handleDelete(item?.id)}
+                                ml={3}>
+                                Delete
+                              </Button>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialogOverlay>
+                      </AlertDialog>
+                    </CardFooter>
+                  </Card>
+                </GridItem>
+              ))}
+            </Grid>
+          </Flex>
         </Box>
       </LayoutComponent>
+      <p>tes</p>
     </>
   );
 }
 // export async function getStaticProps() {
 //   const res = await fetch("https://dummyjson.com/products");
-//   const notes = await res.json();
-//   return { props: { notes }, revalidate: 10 };
+//   const note = await res.json();
+//   return { props: { note }, revalidate: 10 };
 // }
+
+export async function getServerSideProps() {
+  // Fetch data from external API
+  // const res = await fetch("../api/hello");
+  const repo = await getData();
+  // console.log(repo);
+  // const repo = await res.json();
+  // Pass data to the page via props
+  return { props: { repo } };
+}
